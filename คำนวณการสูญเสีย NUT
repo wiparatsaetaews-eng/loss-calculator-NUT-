@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>คำนวณการสูญเสีย Bulk</title>
+<style>
+body { font-family: Arial; max-width: 420px; margin: auto; padding: 20px; }
+input, button { width: 100%; padding: 8px; margin-top: 6px; }
+.result { background:#f2f2f2; padding:10px; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<h2>คำนวณการสูญเสีย Bulk</h2>
+
+<label>น้ำหนัก Bulk ทั้งหมด (g)</label>
+<input id="bulk" type="number">
+
+<label>น้ำหนักต่อซอง (g)</label>
+<input id="perpack" type="number">
+
+<label>จำนวนซองจริง (A)</label>
+<input id="actual" type="number">
+
+<button onclick="calc()">คำนวณ</button>
+
+<div class="result">
+<p>จำนวนซองทฤษฎี (B): <b id="theory">-</b></p>
+<p>ความต่าง (B − A): <b id="diff">-</b></p>
+<p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
+</div>
+
+<script>
+function calc(){
+ let bulk = Number(document.getElementById("bulk").value);
+ let per = Number(document.getElementById("perpack").value);
+ let A = Number(document.getElementById("actual").value);
+
+ let B = bulk / per;
+ let diff = B - A;
+ let loss = (diff / B) * 100;
+
+ document.getElementById("theory").innerText = B.toFixed(0);
+ document.getElementById("diff").innerText = diff.toFixed(0);
+ document.getElementById("loss").innerText = loss.toFixed(2) + " %";
+}
+</script>
+
+</body>
+</html>
