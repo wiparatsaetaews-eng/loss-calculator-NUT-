@@ -2,14 +2,17 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>คำนวณ Yield / Loss</title>
+<title>คำนวณการสูญเสีย Bulk</title>
+<p>Yield (%): <b id="yield">-</b></p>
+<p>สถานะ: <b id="status">-</b></p>
 
 <style>
 body {
   font-family: Arial;
   max-width: 420px;
   margin: auto;
-  padding: 20px;
+  padding: 20px;  
+</style>
 }
 
 input, select, button {
@@ -17,82 +20,86 @@ input, select, button {
   padding: 8px;
   margin-top: 6px;
 }
-
+  
 .result {
+  background: #f2f2f2;
   padding: 12px;
   margin-top: 12px;
-  border-radius: 6px;
 }
 
-.pass { background: #c8f7c5; }      /* เขียว */
-.warn { background: #fff3b0; }      /* เหลือง */
-.fail { background: #f7c5c5; }      /* แดง */
+.pass { color: green; font-weight: bold; }
+.warn { color: orange; font-weight: bold; }
+.fail { color: red; font-weight: bold; }
+
 </style>
 </head>
 
 <body>
 
-<h2>คำนวณ Yield / Loss</h2>
+<h2>คำนวณการสูญเสีย Bulk</h2>
 
-
-<label>น้ำหนักก่อนผสม</label>
-<input id="before" type="number" step="0.01">
-  <label>เลือกหน่วย</label>
-<select id="unit">
-  <option value="1">กรัม (g)</option>
-  <option value="1000">กิโลกรัม (kg)</option>
+<label>หน่วยน้ำหนัก Bulk</label>
+<select id="bulkUnit">
+  <option value="1000">kg</option>
+  <option value="1">g</option>
+  <option value="0.001">mg</option>
 </select>
 
-<label>น้ำหนักหลังผสม</label>
-<input id="after" type="number" step="0.01">
-  <label>เลือกหน่วย</label>
-<select id="unit">
-  <option value="1">กรัม (g)</option>
-  <option value="1000">กิโลกรัม (kg)</option>
+<label>น้ำหนัก Bulk ทั้งหมด</label>
+<input id="bulkWeight" type="number" step="0.0001">
+
+<label>หน่วยน้ำหนักต่อซอง</label>
+<select id="packUnit">
+  <option value="1000">kg</option>
+  <option value="1">g</option>
+  <option value="0.001">mg</option>
 </select>
+
+<label>น้ำหนักต่อซอง</label>
+<input id="packWeight" type="number" step="0.0001">
+
+<label>จำนวนซองจริง (A)</label>
+<input id="actual" type="number">
 
 <button onclick="calc()">คำนวณ</button>
 
-<div id="result" class="result">
-  <p>Yield: <b id="yield">-</b></p>
-  <p>Loss: <b id="loss">-</b></p>
-  <p>สถานะ: <b id="status">-</b></p>
+<div class="result">
+  <p>จำนวนซองทฤษฎี (B): <b id="theory">-</b></p>
+  <p>ความต่าง (B − A): <b id="diff">-</b></p>
+  <p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
 </div>
 
 <script>
-function calc() {
-  let unit = Number(document.getElementById("unit").value);
-  let before = Number(document.getElementById("before").value) * unit;
-  let after = Number(document.getElementById("after").value) * unit;
+function calculate() {
+  const bulk = parseFloat(document.getElementById("bulk").value);
+  const pack = parseFloat(document.getElementById("pack").value);
+  const actual = parseFloat(document.getElementById("actual").value);
 
-  if (before <= 0 || after <= 0) {
-    alert("กรุณากรอกตัวเลขให้ครบ");
-    return;
-  }
+  const theoretical = bulk / pack;
+  const loss = ((theoretical - actual) / theoretical) * 100;
 
-  let yieldPercent = (after / before) * 100;
-  let lossPercent = 100 - yieldPercent;
-
-  document.getElementById("yield").innerText =
-    yieldPercent.toFixed(2) + " %";
-  document.getElementById("loss").innerText =
-    lossPercent.toFixed(2) + " %";
-
-  let box = document.getElementById("result");
-  let status = document.getElementById("status");
-
+  const box = document.getElementById("resultBox");
   box.className = "result";
 
-  if (lossPercent < 3) {
+  let status = "";
+  if (loss < 0.5) {
     box.classList.add("pass");
-    status.innerText = "ผ่าน";
-  } else if (lossPercent < 5) {
+    status = "ผ่าน";
+  } else if (loss < 1) {
     box.classList.add("warn");
-    status.innerText = "เฝ้าระวัง";
+    status = "เฝ้าระวัง";
   } else {
     box.classList.add("fail");
-    status.innerText = "ไม่ผ่าน";
+    status = "ไม่ผ่าน";
   }
+
+  box.innerHTML = `
+    <b>Yield Loss</b><br>
+    จำนวนซองทฤษฎี (B): ${theoretical.toFixed(0)}<br>
+    จำนวนซองจริง (A): ${actual}<br>
+    % Loss: ${loss.toFixed(2)}%<br>
+    สถานะ: ${status}
+  `;
 }
 </script>
 
