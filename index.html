@@ -83,10 +83,10 @@ function calc() {
 
   box.className = "result";
 
-  if (lossPercent < 0.5) {
+  if (lossPercent < 3) {
     box.classList.add("pass");
     status.innerText = "ผ่าน";
-  } else if (lossPercent < 1) {
+  } else if (lossPercent < 5) {
     box.classList.add("warn");
     status.innerText = "เฝ้าระวัง";
   } else {
