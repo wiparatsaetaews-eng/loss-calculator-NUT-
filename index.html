@@ -2,17 +2,18 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>คำนวณการสูญเสีย Bulk</title>
-<p>Yield (%): <b id="yield">-</b></p>
-<p>สถานะ: <b id="status">-</b></p>
+<title>Yield Calculator</title>
 
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   max-width: 420px;
   margin: auto;
-  padding: 20px;  
-</style>
+  padding: 20px;
+}
+
+h2 {
+  text-align: center;
 }
 
 input, select, button {
@@ -20,23 +21,27 @@ input, select, button {
   padding: 8px;
   margin-top: 6px;
 }
-  
-.result {
-  background: #f2f2f2;
-  padding: 12px;
+
+button {
   margin-top: 12px;
+  cursor: pointer;
 }
 
-.pass { color: green; font-weight: bold; }
-.warn { color: orange; font-weight: bold; }
-.fail { color: red; font-weight: bold; }
+.result {
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: 6px;
+}
 
+.pass { background: #c8f7c5; }   /* เขียว */
+.warn { background: #fff3b0; }   /* เหลือง */
+.fail { background: #f7c5c5; }   /* แดง */
 </style>
 </head>
 
 <body>
 
-<h2>คำนวณการสูญเสีย Bulk</h2>
+<h2>Yield Calculator</h2>
 
 <label>หน่วยน้ำหนัก Bulk</label>
 <select id="bulkUnit">
@@ -48,58 +53,68 @@ input, select, button {
 <label>น้ำหนัก Bulk ทั้งหมด</label>
 <input id="bulkWeight" type="number" step="0.0001">
 
-<label>หน่วยน้ำหนักต่อซอง/แคปซูล</label>
+<label>หน่วยน้ำหนักต่อซอง / แคปซูล</label>
 <select id="packUnit">
   <option value="1000">kg</option>
   <option value="1">g</option>
   <option value="0.001">mg</option>
 </select>
 
-<label>น้ำหนักต่อซอง/แคปซูล</label>
+<label>น้ำหนักต่อซอง / แคปซูล</label>
 <input id="packWeight" type="number" step="0.0001">
 
-<label>จำนวนซอง/แคปซูลจริง (A)</label>
+<label>จำนวนซอง / แคปซูลจริง (A)</label>
 <input id="actual" type="number">
 
-<button onclick="calc()">คำนวณ</button>
+<button onclick="calculate()">คำนวณ</button>
 
-<div class="result">
-  <p>จำนวนซอง/แคปซูลทฤษฎี (B): <b id="theory">-</b></p>
-  <p>ความต่าง (B − A): <b id="diff">-</b></p>
-  <p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
+<div id="resultBox" class="result">
+  <p>Yield (%): <b id="yield">-</b></p>
+  <p>Loss (%): <b id="loss">-</b></p>
+  <p>สถานะ: <b id="status">-</b></p>
 </div>
 
 <script>
 function calculate() {
-  const bulk = parseFloat(document.getElementById("bulk").value);
-  const pack = parseFloat(document.getElementById("pack").value);
-  const actual = parseFloat(document.getElementById("actual").value);
+  const bulkValue = Number(document.getElementById("bulkWeight").value);
+  const bulkUnit = Number(document.getElementById("bulkUnit").value);
 
-  const theoretical = bulk / pack;
-  const loss = ((theoretical - actual) / theoretical) * 100;
+  const packValue = Number(document.getElementById("packWeight").value);
+  const packUnit = Number(document.getElementById("packUnit").value);
 
-  const box = document.getElementById("resultBox");
-  box.className = "result";
+  const actual = Number(document.getElementById("actual").value);
 
-  let status = "";
-  if (loss < 0.5) {
-    box.classList.add("pass");
-    status = "ผ่าน";
-  } else if (loss < 1) {
-    box.classList.add("warn");
-    status = "เฝ้าระวัง";
-  } else {
-    box.classList.add("fail");
-    status = "ไม่ผ่าน";
+  if (bulkValue <= 0 || packValue <= 0 || actual <= 0) {
+    alert("กรุณากรอกข้อมูลให้ครบ");
+    return;
   }
 
-  box.innerHTML = `
-    <b>Yield Loss</b><br>
-    จำนวนซองทฤษฎี (B): ${theoretical.toFixed(0)}<br>
-    จำนวนซอง/แคปซูลจริง (A): ${actual}<br>
-    % Loss: ${loss.toFixed(2)}%<br>
-    สถานะ: ${status}
-  `;
+  // แปลงทุกอย่างเป็นกรัม
+  const bulkGram = bulkValue * bulkUnit;
+  const packGram = packValue * packUnit;
+
+  const theoretical = bulkGram / packGram;
+  const yieldPercent = (actual / theoretical) * 100;
+  const lossPercent = 100 - yieldPercent;
+
+  document.getElementById("yield").innerText = yieldPercent.toFixed(2);
+  document.getElementById("loss").innerText = lossPercent.toFixed(2);
+
+  const box = document.getElementById("resultBox");
+  const status = document.getElementById("status");
+
+  box.className = "result";
+
+  if (lossPercent < 0.5) {
+    box.classList.add("pass");
+    status.innerText = "ผ่าน";
+  } else if (lossPercent < 1) {
+    box.classList.add("warn");
+    status.innerText = "เฝ้าระวัง";
+  } else {
+    box.classList.add("fail");
+    status.innerText = "ไม่ผ่าน";
+  }
 }
 </script>
 
