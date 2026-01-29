@@ -2,47 +2,92 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>คำนวณการสูญเสีย Bulk</title>
+<title>คำนวณ Yield / Loss</title>
+
 <style>
-body { font-family: Arial; max-width: 420px; margin: auto; padding: 20px; }
-input, button { width: 100%; padding: 8px; margin-top: 6px; }
-.result { background:#f2f2f2; padding:10px; margin-top:10px; }
+body {
+  font-family: Arial;
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+}
+
+.result {
+  padding: 12px;
+  margin-top: 12px;
+  border-radius: 6px;
+}
+
+.pass { background: #c8f7c5; }      /* เขียว */
+.warn { background: #fff3b0; }      /* เหลือง */
+.fail { background: #f7c5c5; }      /* แดง */
 </style>
 </head>
+
 <body>
 
-<h2>คำนวณการสูญเสีย Bulk</h2>
+<h2>คำนวณ Yield / Loss</h2>
 
-<label>น้ำหนัก Bulk ทั้งหมด (g)</label>
-<input id="bulk" type="number">
+<label>เลือกหน่วย</label>
+<select id="unit">
+  <option value="1">กรัม (g)</option>
+  <option value="1000">กิโลกรัม (kg)</option>
+</select>
 
-<label>น้ำหนักต่อซอง (g)</label>
-<input id="perpack" type="number">
+<label>น้ำหนักก่อนผสม</label>
+<input id="before" type="number" step="0.01">
 
-<label>จำนวนซองจริง (A)</label>
-<input id="actual" type="number">
+<label>น้ำหนักหลังผสม</label>
+<input id="after" type="number" step="0.01">
 
 <button onclick="calc()">คำนวณ</button>
 
-<div class="result">
-<p>จำนวนซองทฤษฎี (B): <b id="theory">-</b></p>
-<p>ความต่าง (B − A): <b id="diff">-</b></p>
-<p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
+<div id="result" class="result">
+  <p>Yield: <b id="yield">-</b></p>
+  <p>Loss: <b id="loss">-</b></p>
+  <p>สถานะ: <b id="status">-</b></p>
 </div>
 
 <script>
-function calc(){
- let bulk = Number(document.getElementById("bulk").value);
- let per = Number(document.getElementById("perpack").value);
- let A = Number(document.getElementById("actual").value);
+function calc() {
+  let unit = Number(document.getElementById("unit").value);
+  let before = Number(document.getElementById("before").value) * unit;
+  let after = Number(document.getElementById("after").value) * unit;
 
- let B = bulk / per;
- let diff = B - A;
- let loss = (diff / B) * 100;
+  if (before <= 0 || after <= 0) {
+    alert("กรุณากรอกตัวเลขให้ครบ");
+    return;
+  }
 
- document.getElementById("theory").innerText = B.toFixed(0);
- document.getElementById("diff").innerText = diff.toFixed(0);
- document.getElementById("loss").innerText = loss.toFixed(2) + " %";
+  let yieldPercent = (after / before) * 100;
+  let lossPercent = 100 - yieldPercent;
+
+  document.getElementById("yield").innerText =
+    yieldPercent.toFixed(2) + " %";
+  document.getElementById("loss").innerText =
+    lossPercent.toFixed(2) + " %";
+
+  let box = document.getElementById("result");
+  let status = document.getElementById("status");
+
+  box.className = "result";
+
+  if (lossPercent < 3) {
+    box.classList.add("pass");
+    status.innerText = "ผ่าน";
+  } else if (lossPercent < 5) {
+    box.classList.add("warn");
+    status.innerText = "เฝ้าระวัง";
+  } else {
+    box.classList.add("fail");
+    status.innerText = "ไม่ผ่าน";
+  }
 }
 </script>
 
