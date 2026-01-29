@@ -6,14 +6,10 @@
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  max-width: 420px;
+  font-family: Arial;
+  max-width: 480px;
   margin: auto;
   padding: 20px;
-}
-
-h2 {
-  text-align: center;
 }
 
 input, select, button {
@@ -24,18 +20,17 @@ input, select, button {
 
 button {
   margin-top: 12px;
-  cursor: pointer;
 }
 
 .result {
-  padding: 12px;
-  margin-top: 12px;
+  padding: 14px;
+  margin-top: 16px;
   border-radius: 6px;
 }
 
-.pass { background: #c8f7c5; }   /* เขียว */
-.warn { background: #fff3b0; }   /* เหลือง */
-.fail { background: #f7c5c5; }   /* แดง */
+.pass { background: #c8f7c5; }
+.warn { background: #fff3b0; }
+.fail { background: #f7c5c5; }
 </style>
 </head>
 
@@ -64,11 +59,13 @@ button {
 <input id="packWeight" type="number" step="0.0001">
 
 <label>จำนวนซอง / แคปซูลจริง (A)</label>
-<input id="actual" type="number">
+<input id="actualQty" type="number">
 
 <button onclick="calculate()">คำนวณ</button>
 
 <div id="resultBox" class="result">
+  <p>จำนวนตามทฤษฎี (B): <b id="theory">-</b></p>
+  <p>ความต่าง (B − A): <b id="diff">-</b></p>
   <p>Yield (%): <b id="yield">-</b></p>
   <p>Loss (%): <b id="loss">-</b></p>
   <p>สถานะ: <b id="status">-</b></p>
@@ -76,29 +73,34 @@ button {
 
 <script>
 function calculate() {
-  const bulkValue = Number(document.getElementById("bulkWeight").value);
-  const bulkUnit = Number(document.getElementById("bulkUnit").value);
 
-  const packValue = Number(document.getElementById("packWeight").value);
+  const bulkUnit = Number(document.getElementById("bulkUnit").value);
   const packUnit = Number(document.getElementById("packUnit").value);
 
-  const actual = Number(document.getElementById("actual").value);
+  const bulkWeight = Number(document.getElementById("bulkWeight").value) * bulkUnit;
+  const packWeight = Number(document.getElementById("packWeight").value) * packUnit;
+  const actual = Number(document.getElementById("actualQty").value);
 
-  if (bulkValue <= 0 || packValue <= 0 || actual <= 0) {
+  if (bulkWeight <= 0 || packWeight <= 0 || actual <= 0) {
     alert("กรุณากรอกข้อมูลให้ครบ");
     return;
   }
 
-  // แปลงทุกอย่างเป็นกรัม
-  const bulkGram = bulkValue * bulkUnit;
-  const packGram = packValue * packUnit;
+  // จำนวนตามทฤษฎี
+  const theory = bulkWeight / packWeight;
 
-  const theoretical = bulkGram / packGram;
-  const yieldPercent = (actual / theoretical) * 100;
+  // ความต่าง
+  const diff = theory - actual;
+
+  // Yield & Loss
+  const yieldPercent = (actual / theory) * 100;
   const lossPercent = 100 - yieldPercent;
 
-  document.getElementById("yield").innerText = yieldPercent.toFixed(2);
-  document.getElementById("loss").innerText = lossPercent.toFixed(2);
+  // แสดงผล
+  document.getElementById("theory").innerText = theory.toFixed(0);
+  document.getElementById("diff").innerText = diff.toFixed(0);
+  document.getElementById("yield").innerText = yieldPercent.toFixed(2) + " %";
+  document.getElementById("loss").innerText = lossPercent.toFixed(2) + " %";
 
   const box = document.getElementById("resultBox");
   const status = document.getElementById("status");
