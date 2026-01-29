@@ -3,21 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <title>คำนวณการสูญเสีย Bulk</title>
+
 <style>
-body { font-family: Arial; max-width: 420px; margin: auto; padding: 20px; }
-input, button { width: 100%; padding: 8px; margin-top: 6px; }
-.result { background:#f2f2f2; padding:10px; margin-top:10px; }
+body {
+  font-family: Arial;
+  max-width: 420px;
+  margin: auto;
+  padding: 20px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+}
+
+.result {
+  background:#f2f2f2;
+  padding:10px;
+  margin-top:10px;
+}
+
+.green { color: green; font-weight: bold; }
+.yellow { color: orange; font-weight: bold; }
+.red { color: red; font-weight: bold; }
 </style>
 </head>
+
 <body>
 
 <h2>คำนวณการสูญเสีย Bulk</h2>
 
-<label>น้ำหนัก Bulk ทั้งหมด (g)</label>
-<input id="bulk" type="number">
+<label>หน่วยน้ำหนัก</label>
+<select id="unit">
+  <option value="1">กรัม (g)</option>
+  <option value="1000">กิโลกรัม (kg)</option>
+</select>
 
-<label>น้ำหนักต่อซอง (g)</label>
-<input id="perpack" type="number">
+<label>น้ำหนัก Bulk ทั้งหมด</label>
+<input id="bulk" type="number" step="any">
+
+<label>น้ำหนักต่อซอง</label>
+<input id="perpack" type="number" step="any">
 
 <label>จำนวนซองจริง (A)</label>
 <input id="actual" type="number">
@@ -25,24 +52,54 @@ input, button { width: 100%; padding: 8px; margin-top: 6px; }
 <button onclick="calc()">คำนวณ</button>
 
 <div class="result">
-<p>จำนวนซองทฤษฎี (B): <b id="theory">-</b></p>
-<p>ความต่าง (B − A): <b id="diff">-</b></p>
-<p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
+  <p>จำนวนซองทฤษฎี (B): <b id="theory">-</b></p>
+  <p>ความต่าง (B − A): <b id="diff">-</b></p>
+  <p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
+  <p>สถานะ: <b id="status">-</b></p>
 </div>
 
 <script>
-function calc(){
- let bulk = Number(document.getElementById("bulk").value);
- let per = Number(document.getElementById("perpack").value);
- let A = Number(document.getElementById("actual").value);
+function calc() {
 
- let B = bulk / per;
- let diff = B - A;
- let loss = (diff / B) * 100;
+  const unitFactor = Number(document.getElementById("unit").value);
+  const bulk = Number(document.getElementById("bulk").value) * unitFactor;
+  const per = Number(document.getElementById("perpack").value);
+  const A = Number(document.getElementById("actual").value);
 
- document.getElementById("theory").innerText = B.toFixed(0);
- document.getElementById("diff").innerText = diff.toFixed(0);
- document.getElementById("loss").innerText = loss.toFixed(2) + " %";
+  if (!bulk || !per || !A) {
+    alert("กรุณากรอกข้อมูลให้ครบ");
+    return;
+  }
+
+  const B = bulk / per;
+  const diff = B - A;
+  const loss = (diff / B) * 100;
+
+  document.getElementById("theory").innerText = B.toFixed(0);
+  document.getElementById("diff").innerText = diff.toFixed(0);
+
+  const lossEl = document.getElementById("loss");
+  const statusEl = document.getElementById("status");
+
+  lossEl.innerText = loss.toFixed(2) + " %";
+  lossEl.className = "";
+  statusEl.className = "";
+
+  if (loss < 3) {
+    lossEl.classList.add("green");
+    statusEl.classList.add("green");
+    statusEl.innerText = "ผ่าน";
+  }
+  else if (loss >= 3 && loss <= 5) {
+    lossEl.classList.add("yellow");
+    statusEl.classList.add("yellow");
+    statusEl.innerText = "เฝ้าระวัง";
+  }
+  else {
+    lossEl.classList.add("red");
+    statusEl.classList.add("red");
+    statusEl.innerText = "ไม่ผ่าน";
+  }
 }
 </script>
 
