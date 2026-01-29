@@ -34,17 +34,22 @@ input, select, button {
 
 <h2>คำนวณ Yield / Loss</h2>
 
-<label>เลือกหน่วย</label>
+
+<label>น้ำหนักก่อนผสม</label>
+<input id="before" type="number" step="0.01">
+  <label>เลือกหน่วย</label>
 <select id="unit">
   <option value="1">กรัม (g)</option>
   <option value="1000">กิโลกรัม (kg)</option>
 </select>
 
-<label>น้ำหนักก่อนผสม</label>
-<input id="before" type="number" step="0.01">
-
 <label>น้ำหนักหลังผสม</label>
 <input id="after" type="number" step="0.01">
+  <label>เลือกหน่วย</label>
+<select id="unit">
+  <option value="1">กรัม (g)</option>
+  <option value="1000">กิโลกรัม (kg)</option>
+</select>
 
 <button onclick="calc()">คำนวณ</button>
 
