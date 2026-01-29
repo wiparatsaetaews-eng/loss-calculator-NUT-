@@ -48,23 +48,23 @@ input, select, button {
 <label>น้ำหนัก Bulk ทั้งหมด</label>
 <input id="bulkWeight" type="number" step="0.0001">
 
-<label>หน่วยน้ำหนักต่อซอง</label>
+<label>หน่วยน้ำหนักต่อซอง/แคปซูล</label>
 <select id="packUnit">
   <option value="1000">kg</option>
   <option value="1">g</option>
   <option value="0.001">mg</option>
 </select>
 
-<label>น้ำหนักต่อซอง</label>
+<label>น้ำหนักต่อซอง/แคปซูล</label>
 <input id="packWeight" type="number" step="0.0001">
 
-<label>จำนวนซองจริง (A)</label>
+<label>จำนวนซอง/แคปซูลจริง (A)</label>
 <input id="actual" type="number">
 
 <button onclick="calc()">คำนวณ</button>
 
 <div class="result">
-  <p>จำนวนซองทฤษฎี (B): <b id="theory">-</b></p>
+  <p>จำนวนซอง/แคปซูลทฤษฎี (B): <b id="theory">-</b></p>
   <p>ความต่าง (B − A): <b id="diff">-</b></p>
   <p>% การสูญเสีย Bulk: <b id="loss">-</b></p>
 </div>
@@ -96,7 +96,7 @@ function calculate() {
   box.innerHTML = `
     <b>Yield Loss</b><br>
     จำนวนซองทฤษฎี (B): ${theoretical.toFixed(0)}<br>
-    จำนวนซองจริง (A): ${actual}<br>
+    จำนวนซอง/แคปซูลจริง (A): ${actual}<br>
     % Loss: ${loss.toFixed(2)}%<br>
     สถานะ: ${status}
   `;
